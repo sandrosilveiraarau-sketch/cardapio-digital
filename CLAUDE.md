@@ -1,36 +1,44 @@
 # Cardápio Digital — Dogão do Bino
 
 ## Sobre o projeto
-Sistema de cardápio digital com link web fixo para uma lanchonete/hotdog house.
+Sistema de cardápio digital mobile-first com painel admin e envio de pedido via WhatsApp.
 Não é SaaS — é um sistema para um único estabelecimento.
 
 ## Funcionalidades
 - Painel admin com senha simples para o dono cadastrar itens
-- Cadastro de lanches: nome, descrição, preço, categoria e imagem
-- Cardápio público premium para o cliente navegar
-- Filtragem por categoria (gerada automaticamente) e busca em tempo real
-- Cliente abre modal do item, escolhe quantidade e adiciona observações
-- Carrinho com nome do cliente, tipo de pedido (Retirada/Entrega) e endereço
-- Pedido enviado via WhatsApp com mensagem formatada profissionalmente
+- Cadastro de itens: nome, descrição, preço, categoria e imagem
+- Cardápio público premium, 100% mobile-first
+- Navegação por seções de categoria com Intersection Observer (tabs atualizam ao rolar)
+- Busca em tempo real por nome ou descrição
+- Botão "+" inline no card → adiciona diretamente; clique no card → bottom sheet de detalhes
+- Qty pill inline no card (− N +) quando item já está no carrinho
+- Bottom sheet de item: qty, campo de observações, preço dinâmico no botão
+- Cart bar persistente no fundo da tela (aparece ao adicionar o 1º item)
+- Bottom sheet de carrinho: nome do cliente, Retirada/Entrega, endereço condicional
+- Toast de feedback ao adicionar item
+- Pedido enviado ao WhatsApp com mensagem formatada profissionalmente
 - Deploy em nuvem via Railway ou Render
 
 ## Stack
 - Backend: Python com FastAPI
 - Banco: SQLite local → PostgreSQL em produção
-- Frontend: HTML + Tailwind CDN + CSS customizado + JavaScript puro
+- Frontend: HTML + CSS customizado + JavaScript puro (sem framework, sem Tailwind)
+- Fonte: Plus Jakarta Sans (Google Fonts)
 - Imagens: upload local ou Cloudinary
 - Deploy: Railway ou Render
 
-## Identidade visual (Dogão do Bino)
-- Tema: escuro premium (`#080808` de fundo)
-- Cor primária (accent): vermelho ketchup `#E63030`
-- Cor secundária: mostarda `#F5A520`
-- Tipografia: **Bebas Neue** (títulos/display) + **Inter** (corpo)
-- Hero: full-screen com glow vermelho, dot-grid pattern, floating card animado
-- Info strip: horário, localização, tipo de pedido, canal WhatsApp
-- Cards: hover com overlay vermelho + scale na imagem
-- Modal de item: qty controls + campo de observações + preço dinâmico
-- Carrinho: nome do cliente, toggle Retirada/Entrega, endereço condicional
+## Design System (mobile-first)
+- **Tema:** light premium — fundo parchment `#F7F5F0`, cards brancos
+- **Accent primário:** burnt orange `#E8622A` (preços, botões, badge)
+- **Accent verde:** `#25A244` (status Aberto, chip Entrega & Retirada)
+- **Tipografia:** Plus Jakarta Sans 400/500/600/700/800
+- **Max-width:** 640px (coluna central centralizada no desktop)
+- **Viewport:** projetado para 390px (iPhone 14 Pro)
+- **Bottom sheets:** animação spring `cubic-bezier(0.16, 1, 0.3, 1)` saindo de `translateY(100%)`
+- **Cart bar:** `position: fixed`, bottom com `safe-area-inset-bottom`, fundo near-black
+- **Category nav:** `position: sticky`, glassmorphism (`backdrop-filter: blur`)
+- **Ripple effect:** delegado via `pointerdown` em `.ripple-btn`
+- **Qty pill:** anima com `popIn` ao aparecer, substitui o botão "+" inline
 
 ## Estrutura de pastas
 ```
@@ -47,12 +55,12 @@ cardapio-digital/
 │   ├── uploads/         # imagens salvas localmente (gitignored)
 │   └── requirements.txt
 ├── frontend/
-│   ├── index.html       # cardápio público (Dogão do Bino)
+│   ├── index.html       # cardápio público mobile-first
 │   ├── admin.html       # painel do dono
 │   └── static/
-│       ├── app.js       # cardápio: categorias, busca, modal, carrinho, WhatsApp
+│       ├── app.js       # toda a lógica do cardápio (ver fluxo abaixo)
 │       ├── admin.js     # painel admin: login, CRUD de itens
-│       └── style.css    # design system completo (variáveis, animações, componentes)
+│       └── style.css    # design system completo (sem Tailwind)
 ├── .env.example
 ├── .gitignore
 ├── CLAUDE.md
@@ -60,12 +68,21 @@ cardapio-digital/
 ```
 
 ## Fluxo do app.js
-1. `init()` → chama `setupListeners()` + `setupScrollBehavior()` + `loadItems()`
-2. `loadItems()` → GET `/api/items/` → `buildCategoryTabs()` + `renderItems()`
-3. `applyFilters()` → filtra por categoria ativa + query de busca → `renderItems()`
-4. `openModal(id)` → exibe item com qty/notas, atualiza botão com preço total
-5. `addModalItemToCart()` → `cartAdd()` → `refreshCartUI()` → abre carrinho
-6. `sendWhatsApp()` → GET `/api/items/config` para número → monta mensagem formatada → `wa.me`
+1. `init()` → `setupListeners()` + `setupScrollBehavior()` + `loadItems()`
+2. `loadItems()` → GET `/api/items/` → `buildCatNav()` + `renderGroupedItems()`
+3. `renderGroupedItems()` → agrupa por categoria → renderiza `<section>` por categoria → `setupCategoryObserver()`
+4. `setupCategoryObserver()` → IntersectionObserver nas sections → atualiza tab ativa ao rolar
+5. `quickAdd(id)` → adiciona 1 unidade (sem notas, key `id_plain`) → `updateCardCta()` + `refreshCartBar()` + toast
+6. `openItemSheet(id)` → preenche bottom sheet com dados do item → `openSheet('item-sheet')`
+7. `addSheetItemToCart()` → cria `_key` único por notas → adiciona ao `cart[]` → fecha sheet → toast
+8. `cartAdjust(key, delta)` → ajusta qty no carrinho → `updateCardCta()` + `refreshCartBar()` + `refreshCartSheet()`
+9. `sendWhatsApp()` → GET `/api/items/config` para número → `buildMessage()` → `wa.me`
+
+## Estado do cart[]
+Cada entrada: `{ _key, id, name, price, qty, notes, image_url, category }`
+- `_key` para item sem notas: `"${id}_plain"`
+- `_key` para item com notas: `"${id}_${btoa(notes).slice(0,12)}"`
+- Mesmo produto com notas diferentes → entradas separadas no cart
 
 ## Mensagem WhatsApp (formato)
 ```
@@ -108,10 +125,10 @@ uvicorn backend.main:app --reload
 Acesse: http://localhost:8000 (cardápio) | http://localhost:8000/admin (painel)
 
 ## Personalização para outro estabelecimento
-1. `index.html`: trocar nome, tagline, horário, endereço no info-strip
-2. `style.css`: mudar `--accent` e `--accent-2` para a paleta da marca
-3. `.env`: `WHATSAPP_NUMBER` com o número real do estabelecimento
-4. Admin: cadastrar produtos reais com imagens
+1. `index.html`: nome, horário, endereço no store-banner e meta chips
+2. `style.css`: `--accent` (cor primária) e `--green` (cor de status)
+3. `.env`: `WHATSAPP_NUMBER` com o número real
+4. Admin `/admin`: cadastrar categorias e produtos reais com imagens
 
 ## Como trabalhamos
 - Implementar de forma incremental, um passo de cada vez

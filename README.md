@@ -1,7 +1,7 @@
 # Cardápio Digital — Dogão do Bino
 
-Sistema de cardápio digital premium com painel admin e envio de pedido via WhatsApp.
-Design profissional com tema escuro, identidade visual personalizada e UX superior.
+Sistema de cardápio digital **mobile-first** com painel admin e envio de pedido via WhatsApp.
+Design world-class inspirado em iFood/Uber Eats: light theme premium, bottom sheets, cart bar persistente e micro-interações nativas.
 
 ---
 
@@ -54,24 +54,37 @@ Copie `.env.example` para `.env` e preencha:
 ## Funcionalidades
 
 ### Cardápio público (`/`)
-- Hero full-screen com identidade visual da marca e floating card animado
-- Info strip com horário, localização e canal de atendimento
-- Filtragem por categoria (gerada automaticamente a partir dos produtos)
-- Busca em tempo real por nome ou descrição
-- Cards com hover animado e overlay de ação
-- Modal de item: quantidade, campo de observações, preço dinâmico
-- Carrinho lateral com:
-  - Campo de nome do cliente
-  - Toggle Retirada / Entrega (campo de endereço condicional)
-  - Lista de itens com observações destacadas
-  - Total do pedido
-  - Botão de envio pelo WhatsApp com mensagem formatada
+- Header fixo com logo, status "Aberto agora" e ícone de carrinho com badge
+- Store banner com chips de horário, dias e tipo de entrega
+- **Category nav sticky** com glassmorphism — tabs geradas automaticamente pelos produtos cadastrados
+- **Intersection Observer** — tab ativa atualiza conforme o cliente rola o cardápio
+- **Busca em tempo real** por nome ou descrição
+- **Cards horizontais** (imagem à direita) com botão "+" de toque grande
+- **Qty pill inline** (− N +) aparece no card quando o item está no carrinho
+- **Item bottom sheet** ao tocar no card: imagem, descrição, qty, observações, preço dinâmico
+- **Cart bar** fixa no fundo da tela — aparece ao adicionar o primeiro item, some quando o carrinho esvazia
+- **Cart bottom sheet** com nome do cliente, toggle Retirada/Entrega, endereço condicional, total e botão WhatsApp
+- Toast de feedback ao adicionar cada item
 
 ### Painel admin (`/admin`)
 - Login com senha simples
 - Cadastro de itens: nome, descrição, preço, categoria, imagem
 - Edição e exclusão de itens
-- Controle de disponibilidade (ocultar item sem excluir)
+- Controle de disponibilidade (ocultar sem excluir)
+
+---
+
+## Design
+
+| Atributo | Valor |
+|---|---|
+| Tema | Light premium (warm parchment `#F7F5F0`) |
+| Accent | Burnt orange `#E8622A` |
+| Verde (status) | `#25A244` |
+| Fonte | Plus Jakarta Sans (400–800) |
+| Max-width | 640px — coluna centralizada no desktop |
+| Viewport-alvo | 390px (iPhone 14 Pro) |
+| Animações | Spring `cubic-bezier(0.16, 1, 0.3, 1)` |
 
 ---
 
@@ -108,15 +121,15 @@ cardapio-digital/
 │   ├── schemas.py       # Schemas Pydantic
 │   ├── routers/
 │   │   ├── auth.py      # Autenticação admin (JWT)
-│   │   └── items.py     # CRUD de itens do cardápio
+│   │   └── items.py     # CRUD de itens (Form data + upload de imagem)
 │   └── requirements.txt
 ├── frontend/
-│   ├── index.html       # Cardápio público (Dogão do Bino)
+│   ├── index.html       # Cardápio público mobile-first
 │   ├── admin.html       # Painel admin
 │   └── static/
-│       ├── app.js       # Categorias, busca, modal, carrinho, WhatsApp
+│       ├── app.js       # Lógica completa: categorias, busca, sheets, carrinho, WhatsApp
 │       ├── admin.js     # Login, CRUD de itens
-│       └── style.css    # Design system: variáveis, animações, componentes
+│       └── style.css    # Design system completo (sem Tailwind)
 ├── .env.example
 └── CLAUDE.md
 ```
@@ -134,8 +147,8 @@ cardapio-digital/
 
 ## Personalização para outro estabelecimento
 
-1. **Nome e textos:** edite `frontend/index.html` — hero, info strip, footer
-2. **Cores:** edite `--accent` e `--accent-2` em `frontend/static/style.css`
+1. **Nome e info:** edite o store-banner em `frontend/index.html`
+2. **Cores:** altere `--accent` e `--green` no topo de `frontend/static/style.css`
 3. **WhatsApp:** configure `WHATSAPP_NUMBER` no `.env`
 4. **Produtos:** cadastre pelo painel admin em `/admin`
 
@@ -145,6 +158,7 @@ cardapio-digital/
 
 - **Backend:** Python + FastAPI
 - **Banco:** SQLite (dev) / PostgreSQL (produção)
-- **Frontend:** HTML + Tailwind CDN + CSS customizado + JavaScript puro
+- **Frontend:** HTML + CSS customizado + JavaScript puro (sem framework)
+- **Fonte:** Plus Jakarta Sans (Google Fonts)
 - **Autenticação:** JWT (HS256, 12h)
 - **Imagens:** Upload local ou Cloudinary
