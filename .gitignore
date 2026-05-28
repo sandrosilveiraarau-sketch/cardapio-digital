@@ -205,6 +205,13 @@ cython_debug/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
+# SQLite database
+*.db
+*.sqlite3
+
+# Uploads folder (imagens locais)
+backend/uploads/
+
 # Ruff stuff:
 .ruff_cache/
 
