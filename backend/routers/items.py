@@ -9,6 +9,15 @@ from .. import models, schemas
 from ..database import get_db
 from ..config import settings
 
+if settings.cloudinary_cloud_name:
+    import cloudinary
+    import cloudinary.uploader
+    cloudinary.config(
+        cloud_name=settings.cloudinary_cloud_name,
+        api_key=settings.cloudinary_api_key,
+        api_secret=settings.cloudinary_api_secret,
+    )
+
 router = APIRouter(prefix="/items", tags=["items"])
 bearer = HTTPBearer()
 
@@ -105,10 +114,13 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
 
 
 async def _save_image(upload: UploadFile) -> str:
+    content = await upload.read()
+    if settings.cloudinary_cloud_name:
+        result = cloudinary.uploader.upload(content, folder="cardapio")
+        return result["secure_url"]
     ext = os.path.splitext(upload.filename)[1]
     filename = f"{uuid.uuid4()}{ext}"
     path = os.path.join(UPLOAD_DIR, filename)
-    content = await upload.read()
     with open(path, "wb") as f:
         f.write(content)
     return f"/uploads/{filename}"
