@@ -105,6 +105,22 @@ a { text-decoration: none; color: inherit; }
   0%,100% { opacity: 1; }
   50%     { opacity: .4; }
 }
+@keyframes logoFloat {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-7px); }
+}
+@keyframes logoEntrance {
+  from { opacity: 0; transform: translateY(20px) scale(.88); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes glowPulse {
+  0%,100% { opacity: .45; transform: scale(1); }
+  50%     { opacity: .7;  transform: scale(1.08); }
+}
+@keyframes bannerReveal {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
 
 /* ═════════════════════════════════════════
@@ -116,14 +132,19 @@ a { text-decoration: none; color: inherit; }
   width: 100%; max-width: var(--max-w);
   height: var(--header-h);
   z-index: 60;
+  background: rgba(26,25,24,.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: background .25s, box-shadow .25s;
 }
 .header.scrolled {
-  background: rgba(247,245,240,.92);
+  background: rgba(26,25,24,.88);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 20px rgba(0,0,0,.25);
 }
+.header.scrolled .header-name   { color: #fff; }
+.header.scrolled .header-cart-btn { color: #fff; }
 .header-inner {
   height: 100%; padding: 0 1.1rem;
   display: flex; align-items: center; justify-content: space-between;
@@ -131,10 +152,10 @@ a { text-decoration: none; color: inherit; }
 .header-brand {
   display: flex; align-items: center; gap: .6rem;
 }
-.header-logo { font-size: 1.5rem; line-height: 1; }
 .header-name {
   display: block; font-size: .95rem; font-weight: 700;
-  color: var(--primary); line-height: 1.2;
+  color: #fff; line-height: 1.2;
+  transition: color .25s;
 }
 .header-status {
   display: flex; align-items: center; gap: .3rem;
@@ -149,8 +170,8 @@ a { text-decoration: none; color: inherit; }
 
 .header-cart-btn {
   position: relative; padding: .5rem;
-  color: var(--primary); border-radius: var(--r-sm);
-  transition: background .15s, transform .15s;
+  color: #fff; border-radius: var(--r-sm);
+  transition: background .15s, transform .15s, color .25s;
   display: flex; align-items: center; justify-content: center;
 }
 .header-cart-btn:active { transform: scale(.92); }
@@ -173,41 +194,88 @@ a { text-decoration: none; color: inherit; }
 #main { padding-top: var(--header-h); }
 
 
+/* ─── Header logo img ────────────────── */
+.header-logo-img {
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  object-fit: cover; flex-shrink: 0;
+}
+
 /* ─── Store Banner ───────────────────── */
 .store-banner {
-  background: var(--surface);
-  padding: 1.25rem 1.1rem 1.1rem;
-  border-bottom: 1px solid var(--border);
+  position: relative;
+  background: var(--primary);
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  animation: bannerReveal .5s ease;
 }
-.store-banner-body {
-  display: flex; align-items: flex-start; gap: 1rem;
+
+.store-banner-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,98,42,.35) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 80% at 80% 100%, rgba(232,98,42,.15) 0%, transparent 60%);
+  pointer-events: none;
 }
-.store-banner-icon {
-  width: 60px; height: 60px; border-radius: var(--r);
-  background: var(--accent-light);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; flex-shrink: 0;
+
+.store-banner-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 2rem 1.25rem 1.5rem;
+  text-align: center;
 }
-.store-banner-name {
-  font-size: 1.2rem; font-weight: 800;
-  color: var(--primary); line-height: 1.2;
+
+/* Logo flutuante */
+.store-logo-wrap {
+  position: relative;
+  margin-bottom: 1.25rem;
+  animation: logoEntrance .6s cubic-bezier(.16,1,.3,1) both;
+}
+.store-logo {
+  width: 120px; height: 120px;
+  border-radius: 24px;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 3px rgba(232,98,42,.5),
+    0 16px 48px rgba(0,0,0,.45),
+    0 4px 12px rgba(0,0,0,.3);
+  animation: logoFloat 3.6s ease-in-out infinite;
+  display: block;
+}
+.store-logo-glow {
+  position: absolute; inset: -12px;
+  border-radius: 36px;
+  background: radial-gradient(circle, rgba(232,98,42,.5) 0%, transparent 70%);
+  filter: blur(16px);
+  animation: glowPulse 3.6s ease-in-out infinite;
+  pointer-events: none; z-index: -1;
+}
+
+.store-banner-info {
+  display: flex; flex-direction: column; align-items: center; gap: .65rem;
 }
 .store-banner-desc {
-  font-size: .8rem; color: var(--muted); margin-top: .2rem;
-  font-weight: 500;
+  font-size: .82rem; color: rgba(255,255,255,.65);
+  font-weight: 500; letter-spacing: .01em;
 }
 .store-banner-meta {
-  display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem;
 }
 .meta-chip {
   display: inline-flex; align-items: center; gap: .3rem;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  padding: .25rem .65rem;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.15);
+  padding: .28rem .7rem;
   border-radius: var(--r-full);
-  font-size: .72rem; font-weight: 600; color: var(--muted);
+  font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.75);
+  backdrop-filter: blur(8px);
 }
-.meta-chip--green { color: var(--green); border-color: rgba(37,162,68,.2); background: var(--green-light); }
+.meta-chip svg { opacity: .7; }
+.meta-chip--green {
+  color: #4ADE80;
+  border-color: rgba(74,222,128,.25);
+  background: rgba(74,222,128,.1);
+}
+.meta-chip--green svg { opacity: 1; }
 
 
 /* ─── Category Nav ───────────────────── */
