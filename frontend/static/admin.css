@@ -480,6 +480,11 @@ a { text-decoration: none; color: inherit; }
 .confirm-text { font-size: .9rem; color: var(--adm-muted); margin-bottom: 1.25rem; }
 
 /* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+.hidden { display: none !important; }
+
+/* ═══════════════════════════════════════════
    TOAST
 ═══════════════════════════════════════════ */
 .adm-toast {
