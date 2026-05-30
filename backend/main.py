@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 
 from .database import engine, Base
-from .routers import auth, items
+from .routers import auth, items, categories, delivery
 
 Base.metadata.create_all(bind=engine)
 
@@ -20,6 +20,8 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(items.router, prefix="/api")
+app.include_router(categories.router, prefix="/api")
+app.include_router(delivery.router, prefix="/api")
 
 UPLOADS_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")

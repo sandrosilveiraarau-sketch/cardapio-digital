@@ -1,21 +1,41 @@
 const API = '/api';
 
 /* ─── State ──────────────────────── */
-let allItems    = [];
-let categories  = [];
-let cart        = [];   // { _key, id, name, price, qty, notes, image_url, category }
-let orderType   = 'retirada';
-let sheetItem   = null;  // item currently open in item sheet
-let sheetQty    = 1;
-let searchQuery = '';
-let catObserver = null;
-let toastTimer  = null;
+let allItems      = [];
+let categories    = [];
+let deliveryZones = [];
+let cart          = [];   // { _key, id, name, price, qty, notes, image_url, category }
+let orderType     = 'retirada';
+let deliveryFee   = 0;
+let sheetItem     = null;
+let sheetQty      = 1;
+let searchQuery   = '';
+let catObserver   = null;
+let toastTimer    = null;
 
 /* ─── Boot ───────────────────────── */
 async function init() {
   setupListeners();
   setupScrollBehavior();
-  await loadItems();
+  await Promise.all([loadItems(), loadDeliveryZones()]);
+}
+
+async function loadDeliveryZones() {
+  try {
+    const res = await fetch(`${API}/delivery/zones`);
+    if (res.ok) {
+      deliveryZones = await res.json();
+      const sel = document.getElementById('customer-neighborhood');
+      deliveryZones.forEach(z => {
+        const opt = document.createElement('option');
+        opt.value = z.id;
+        opt.textContent = z.fee > 0
+          ? `${z.neighborhood} — ${price(z.fee)}`
+          : `${z.neighborhood} — Grátis`;
+        sel.appendChild(opt);
+      });
+    }
+  } catch { /* offline */ }
 }
 
 /* ─── Load items ─────────────────── */
@@ -255,14 +275,21 @@ function openCartSheet() {
 
 function refreshCartSheet() {
   const isEmpty  = cart.length === 0;
-  const total    = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const count    = cart.reduce((s, i) => s + i.qty, 0);
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total    = subtotal + (orderType === 'entrega' ? deliveryFee : 0);
 
   document.getElementById('cart-empty').classList.toggle('hidden', !isEmpty);
   document.getElementById('cart-list').classList.toggle('hidden', isEmpty);
   document.getElementById('cart-footer').classList.toggle('hidden', isEmpty);
   document.getElementById('cart-customer-wrap').style.display = isEmpty ? 'none' : '';
 
+  const feeRow = document.getElementById('cart-fee-row');
+  if (orderType === 'entrega' && deliveryFee > 0) {
+    feeRow.classList.remove('hidden');
+    document.getElementById('cart-fee-val').textContent = price(deliveryFee);
+  } else {
+    feeRow.classList.add('hidden');
+  }
   document.getElementById('cart-total-val').textContent = price(total);
 
   document.getElementById('cart-list').innerHTML = cart.map(item => `
@@ -313,13 +340,17 @@ function refreshCartBar() {
 function buildMessage() {
   const name    = (document.getElementById('customer-name').value || '').trim();
   const address = (document.getElementById('customer-address').value || '').trim();
+  const neighborhoodSel = document.getElementById('customer-neighborhood');
+  const neighborhoodName = neighborhoodSel.options[neighborhoodSel.selectedIndex]?.text || '';
 
   let msg = `🌭 *PEDIDO — DOGÃO DO BINO*\n\n`;
-  if (name)  msg += `👤 *Nome:* ${name}\n`;
+  if (name) msg += `👤 *Nome:* ${name}\n`;
 
   if (orderType === 'entrega') {
     msg += `🛵 *Tipo:* Entrega\n`;
-    if (address) msg += `📍 *Endereço:* ${address}\n`;
+    if (neighborhoodName && neighborhoodSel.value) msg += `📍 *Bairro:* ${neighborhoodName}\n`;
+    if (address) msg += `🏠 *Endereço:* ${address}\n`;
+    if (deliveryFee > 0) msg += `🚚 *Taxa de entrega:* ${price(deliveryFee)}\n`;
   } else {
     msg += `🏪 *Tipo:* Retirada no local\n`;
   }
@@ -331,7 +362,8 @@ function buildMessage() {
     msg += `\n`;
   });
 
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total    = subtotal + (orderType === 'entrega' ? deliveryFee : 0);
   msg += `\n*💰 Total: ${price(total)}*`;
   msg += `\n\n_Pedido via cardápio digital_ 🌭`;
 
@@ -344,7 +376,7 @@ async function sendWhatsApp() {
   try {
     const res = await fetch(`${API}/items/config`);
     if (res.ok) { const d = await res.json(); number = d.whatsapp_number || ''; }
-  } catch { /* fallback to empty */ }
+  } catch { /* sem número configurado */ }
   window.open(`https://wa.me/${number}?text=${buildMessage()}`, '_blank');
 }
 
@@ -423,8 +455,18 @@ function setupListeners() {
     btn.addEventListener('click', () => {
       orderType = btn.dataset.type;
       document.querySelectorAll('.order-tab').forEach(b => b.classList.toggle('active', b === btn));
-      document.getElementById('customer-address').classList.toggle('hidden', orderType !== 'entrega');
+      const isEntrega = orderType === 'entrega';
+      document.getElementById('customer-address-wrap').classList.toggle('hidden', !isEntrega);
+      if (!isEntrega) { deliveryFee = 0; refreshCartSheet(); }
     });
+  });
+
+  /* Bairro select → update fee */
+  document.getElementById('customer-neighborhood').addEventListener('change', e => {
+    const zoneId = parseInt(e.target.value);
+    const zone = deliveryZones.find(z => z.id === zoneId);
+    deliveryFee = zone ? zone.fee : 0;
+    refreshCartSheet();
   });
 
   /* Search */

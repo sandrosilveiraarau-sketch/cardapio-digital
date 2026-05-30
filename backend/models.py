@@ -12,3 +12,19 @@ class Item(Base):
     image_url = Column(String(500), nullable=True)
     category = Column(String(50), nullable=True)
     available = Column(Boolean, default=True)
+
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), nullable=False, unique=True)
+    order = Column(Integer, default=0)
+
+
+class DeliveryZone(Base):
+    __tablename__ = "delivery_zones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    neighborhood = Column(String(100), nullable=False)
+    fee = Column(Float, nullable=False, default=0)

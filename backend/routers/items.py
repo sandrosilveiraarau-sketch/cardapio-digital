@@ -32,6 +32,11 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
 
 
+@router.get("/config")
+def get_config():
+    return {"whatsapp_number": settings.whatsapp_number}
+
+
 @router.get("/", response_model=list[schemas.ItemOut])
 def list_items(db: Session = Depends(get_db)):
     return db.query(models.Item).filter(models.Item.available == True).all()

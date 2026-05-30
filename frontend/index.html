@@ -187,7 +187,12 @@
             Entrega
           </button>
         </div>
-        <input id="customer-address" type="text" class="field-input hidden" placeholder="Endereço de entrega" maxlength="120" />
+        <div id="customer-address-wrap" class="hidden" style="display:flex;flex-direction:column;gap:.5rem;">
+          <select id="customer-neighborhood" class="field-input">
+            <option value="">Selecione seu bairro…</option>
+          </select>
+          <input id="customer-address" type="text" class="field-input" placeholder="Rua, número, complemento" maxlength="120" />
+        </div>
       </div>
 
       <!-- Empty cart state -->
@@ -203,6 +208,10 @@
 
       <!-- Cart footer -->
       <div id="cart-footer" class="cart-footer hidden">
+        <div class="cart-fee-row hidden" id="cart-fee-row">
+          <span class="cart-total-label">Taxa de entrega</span>
+          <span id="cart-fee-val" class="cart-fee-val">R$ 0,00</span>
+        </div>
         <div class="cart-total-row">
           <span class="cart-total-label">Total do pedido</span>
           <span id="cart-total-val" class="cart-total-val">R$ 0,00</span>

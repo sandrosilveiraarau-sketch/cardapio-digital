@@ -754,9 +754,16 @@ a { text-decoration: none; color: inherit; }
   padding: 1rem 1.25rem 0;
   border-top: 1px solid var(--border);
 }
+.cart-fee-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: .5rem;
+}
+.cart-fee-row.hidden { display: none; }
+.cart-fee-val { font-size: .95rem; font-weight: 700; color: var(--muted); }
 .cart-total-row {
   display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1rem; padding-top: .5rem;
+  border-top: 1px dashed var(--border);
 }
 .cart-total-label { font-size: .9rem; font-weight: 600; color: var(--muted); }
 .cart-total-val   { font-size: 1.25rem; font-weight: 800; color: var(--primary); }

@@ -3,70 +3,247 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Cardápio</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Admin — Dogão do Bino</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/admin.css" />
 </head>
-<body class="bg-zinc-950 text-white min-h-screen">
+<body>
 
-  <!-- Login screen -->
-  <div id="login-screen" class="min-h-screen flex items-center justify-center px-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 w-full max-w-sm space-y-6">
-      <h1 class="text-3xl font-display text-amber-400 tracking-widest text-center">ADMIN</h1>
-      <input id="password-input" type="password" placeholder="Senha" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 focus:outline-none focus:border-amber-400" />
-      <p id="login-error" class="text-red-400 text-sm hidden">Senha incorreta.</p>
-      <button id="btn-login" class="w-full bg-amber-400 text-zinc-950 font-bold py-3 rounded-lg hover:bg-amber-300 transition">Entrar</button>
+<!-- ═══ LOGIN ═══ -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🌭</div>
+    <h1 class="login-title">Dogão do Bino</h1>
+    <p class="login-sub">Painel Administrativo</p>
+    <div class="login-form">
+      <input id="password-input" type="password" placeholder="Senha de acesso" class="adm-input" autocomplete="current-password" />
+      <p id="login-error" class="login-error hidden">Senha incorreta. Tente novamente.</p>
+      <button id="btn-login" class="adm-btn adm-btn--primary">Entrar</button>
     </div>
   </div>
+</div>
 
-  <!-- Dashboard -->
-  <div id="dashboard" class="hidden">
-    <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
-      <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-        <h1 class="text-2xl font-display text-amber-400 tracking-widest">PAINEL ADMIN</h1>
-        <div class="flex gap-3">
-          <a href="/" class="text-zinc-400 hover:text-white text-sm transition">Ver cardápio</a>
-          <button id="btn-logout" class="text-zinc-400 hover:text-white text-sm transition">Sair</button>
-        </div>
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dashboard" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">🌭</span>
+      <div>
+        <div class="sidebar-name">Dogão do Bino</div>
+        <div class="sidebar-role">Administrador</div>
       </div>
-    </header>
+    </div>
 
-    <main class="max-w-5xl mx-auto px-4 py-8 space-y-8">
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-tab="products">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        Produtos
+      </button>
+      <button class="nav-item" data-tab="categories">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Categorias
+      </button>
+      <button class="nav-item" data-tab="delivery">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="m16 8 4 2v5h-4"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Entregas
+      </button>
+    </nav>
 
-      <!-- Formulário novo item -->
-      <section class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-4">
-        <h2 id="form-title" class="text-lg font-bold">Novo item</h2>
-        <form id="item-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input type="hidden" id="edit-id" />
-          <input id="f-name" name="name" type="text" placeholder="Nome *" required class="input-field" />
-          <input id="f-price" name="price" type="number" step="0.01" min="0" placeholder="Preço *" required class="input-field" />
-          <input id="f-category" name="category" type="text" placeholder="Categoria" class="input-field" />
-          <div class="flex items-center gap-2">
-            <input id="f-available" name="available" type="checkbox" checked class="w-4 h-4 accent-amber-400" />
-            <label for="f-available" class="text-sm">Disponível</label>
-          </div>
-          <textarea id="f-description" name="description" placeholder="Descrição" rows="2" class="input-field sm:col-span-2"></textarea>
-          <div class="sm:col-span-2">
-            <label class="text-sm text-zinc-400">Imagem</label>
-            <input id="f-image" name="image" type="file" accept="image/*" class="mt-1 block text-sm text-zinc-400" />
-          </div>
-          <div class="sm:col-span-2 flex gap-3">
-            <button type="submit" class="bg-amber-400 text-zinc-950 font-bold px-6 py-2 rounded-lg hover:bg-amber-300 transition">Salvar</button>
-            <button type="button" id="btn-cancel" class="hidden text-zinc-400 hover:text-white transition">Cancelar</button>
-          </div>
-        </form>
-      </section>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank" class="sidebar-link">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver cardápio
+      </a>
+      <button id="btn-logout" class="sidebar-link sidebar-link--danger">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </aside>
 
-      <!-- Lista de itens -->
-      <section>
-        <h2 class="text-lg font-bold mb-4">Itens cadastrados</h2>
-        <div id="admin-items" class="space-y-3"></div>
-      </section>
-    </main>
+  <!-- Mobile top bar -->
+  <div class="mobile-topbar">
+    <button id="mobile-menu-btn" class="mobile-menu-btn">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <span class="mobile-topbar-title">Painel Admin</span>
+    <a href="/" target="_blank" class="mobile-topbar-link">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/></svg>
+    </a>
   </div>
 
-  <script src="/static/admin.js"></script>
+  <!-- Content area -->
+  <main class="adm-content">
+
+    <!-- ── Tab: Produtos ── -->
+    <section id="tab-products" class="tab-section active">
+      <div class="tab-header">
+        <div>
+          <h2 class="tab-title">Produtos</h2>
+          <p class="tab-sub">Gerencie o cardápio do estabelecimento</p>
+        </div>
+        <button class="adm-btn adm-btn--primary" id="btn-new-product">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Novo produto
+        </button>
+      </div>
+
+      <!-- Search & filter -->
+      <div class="products-toolbar">
+        <div class="toolbar-search">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="products-search" type="search" placeholder="Buscar produto…" class="toolbar-search-input" />
+        </div>
+        <select id="products-filter-cat" class="toolbar-select">
+          <option value="">Todas as categorias</option>
+        </select>
+      </div>
+
+      <div id="products-list" class="products-grid"></div>
+    </section>
+
+    <!-- ── Tab: Categorias ── -->
+    <section id="tab-categories" class="tab-section">
+      <div class="tab-header">
+        <div>
+          <h2 class="tab-title">Categorias</h2>
+          <p class="tab-sub">Organize as divisões do cardápio</p>
+        </div>
+      </div>
+
+      <div class="simple-form-card">
+        <h3 class="simple-form-title">Nova categoria</h3>
+        <div class="simple-form-row">
+          <input id="cat-name-input" type="text" placeholder="Ex: Dogs, Lanches, Combos…" class="adm-input" maxlength="50" />
+          <button id="btn-add-cat" class="adm-btn adm-btn--primary">Adicionar</button>
+        </div>
+      </div>
+
+      <div id="categories-list" class="simple-list"></div>
+    </section>
+
+    <!-- ── Tab: Entregas ── -->
+    <section id="tab-delivery" class="tab-section">
+      <div class="tab-header">
+        <div>
+          <h2 class="tab-title">Zonas de Entrega</h2>
+          <p class="tab-sub">Configure taxas de entrega por bairro</p>
+        </div>
+      </div>
+
+      <div class="simple-form-card">
+        <h3 class="simple-form-title">Novo bairro</h3>
+        <div class="simple-form-row">
+          <input id="zone-neighborhood" type="text" placeholder="Nome do bairro" class="adm-input" maxlength="100" />
+          <input id="zone-fee" type="number" placeholder="Taxa (R$)" class="adm-input adm-input--sm" step="0.50" min="0" />
+          <button id="btn-add-zone" class="adm-btn adm-btn--primary">Adicionar</button>
+        </div>
+      </div>
+
+      <div id="delivery-list" class="simple-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══ PRODUCT MODAL ═══ -->
+<div id="product-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title" class="modal-title">Novo produto</h3>
+      <button id="modal-close" class="modal-close">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form id="product-form" class="modal-body" autocomplete="off">
+      <input type="hidden" id="edit-id" />
+
+      <div class="form-group">
+        <label class="form-label">Nome *</label>
+        <input id="f-name" type="text" class="adm-input" placeholder="Ex: Dogão Tradicional" required maxlength="100" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Preço *</label>
+          <input id="f-price" type="number" class="adm-input" step="0.01" min="0" placeholder="0,00" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select id="f-category" class="adm-input adm-select">
+            <option value="">Sem categoria</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea id="f-description" class="adm-input adm-textarea" rows="3" placeholder="Descreva os ingredientes ou diferenciais…" maxlength="300"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Imagem</label>
+        <div class="image-upload-area" id="image-upload-area">
+          <div id="image-preview-wrap" class="image-preview-wrap hidden">
+            <img id="image-preview" src="" alt="Preview" class="image-preview" />
+            <button type="button" id="image-remove" class="image-remove">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div id="image-placeholder" class="image-placeholder">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Clique ou arraste uma imagem</span>
+          </div>
+          <input id="f-image" type="file" accept="image/*" class="image-input" />
+        </div>
+      </div>
+
+      <div class="form-toggle">
+        <label class="toggle-label">
+          <span class="toggle-text">Produto disponível</span>
+          <div class="toggle-switch">
+            <input id="f-available" type="checkbox" checked />
+            <span class="toggle-slider"></span>
+          </div>
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="btn-cancel" class="adm-btn adm-btn--ghost">Cancelar</button>
+        <button type="submit" class="adm-btn adm-btn--primary" id="btn-save">
+          <span id="btn-save-label">Salvar produto</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div id="confirm-modal" class="modal-overlay hidden">
+  <div class="modal modal--sm">
+    <div class="modal-header">
+      <h3 class="modal-title" id="confirm-title">Confirmar exclusão</h3>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-text" id="confirm-text">Tem certeza? Esta ação não pode ser desfeita.</p>
+      <div class="modal-footer">
+        <button id="confirm-cancel" class="adm-btn adm-btn--ghost">Cancelar</button>
+        <button id="confirm-ok" class="adm-btn adm-btn--danger">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div id="adm-toast" class="adm-toast hidden">
+  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="adm-toast-msg"></span>
+</div>
+
+<script src="/static/admin.js"></script>
 </body>
 </html>

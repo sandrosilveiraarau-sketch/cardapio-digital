@@ -34,3 +34,31 @@ class LoginRequest(BaseModel):
 class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class CategoryOut(BaseModel):
+    id: int
+    name: str
+    order: int
+
+    class Config:
+        from_attributes = True
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    order: int = 0
+
+
+class DeliveryZoneOut(BaseModel):
+    id: int
+    neighborhood: str
+    fee: float
+
+    class Config:
+        from_attributes = True
+
+
+class DeliveryZoneCreate(BaseModel):
+    neighborhood: str
+    fee: float
