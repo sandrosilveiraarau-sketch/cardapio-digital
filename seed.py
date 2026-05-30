@@ -228,17 +228,17 @@ def main():
     base = args.url.rstrip("/")
 
     # 1. Login
-    print("🔐 Autenticando...")
+    print("Autenticando...")
     res = requests.post(f"{base}/api/auth/login", json={"password": args.password})
     if not res.ok:
-        print("❌ Senha incorreta.")
+        print("ERRO: Senha incorreta.")
         sys.exit(1)
     token = res.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
-    print("✅ Autenticado!\n")
+    print("Autenticado!\n")
 
     # 2. Criar categorias
-    print("📂 Criando categorias...")
+    print("Criando categorias...")
     cat_map = {}
     for i, name in enumerate(CATEGORIES):
         res = requests.post(
@@ -248,15 +248,15 @@ def main():
         )
         if res.ok:
             cat_map[name] = name
-            print(f"  ✅ {name}")
+            print(f"  [OK] {name}")
         elif res.status_code == 400:
             cat_map[name] = name
-            print(f"  ⚠️  {name} (já existe)")
+            print(f"  [JA EXISTE] {name}")
         else:
-            print(f"  ❌ {name} — erro {res.status_code}")
+            print(f"  [ERRO] {name} — {res.status_code}")
 
     # 3. Criar produtos
-    print(f"\n🌭 Criando {len(PRODUCTS)} produtos...")
+    print(f"\nCriando {len(PRODUCTS)} produtos...")
     ok = 0
     for p in PRODUCTS:
         data = {
@@ -273,12 +273,12 @@ def main():
         )
         if res.ok:
             ok += 1
-            print(f"  ✅ {p['name']} — R$ {p['price']:.2f}")
+            print(f"  [OK] {p['name']} — R$ {p['price']:.2f}")
         else:
-            print(f"  ❌ {p['name']} — erro {res.status_code}: {res.text[:80]}")
+            print(f"  [ERRO] {p['name']} — {res.status_code}: {res.text[:80]}")
 
-    print(f"\n🎉 Concluído! {ok}/{len(PRODUCTS)} produtos criados.")
-    print(f"👉 Acesse {base}/admin para adicionar imagens aos produtos.")
+    print(f"\nConcluido! {ok}/{len(PRODUCTS)} produtos criados.")
+    print(f"Acesse {base}/admin para adicionar imagens aos produtos.")
 
 if __name__ == "__main__":
     main()

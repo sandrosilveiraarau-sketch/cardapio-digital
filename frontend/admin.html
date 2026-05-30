@@ -50,6 +50,10 @@
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="m16 8 4 2v5h-4"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         Entregas
       </button>
+      <button class="nav-item" data-tab="notification">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Avisos
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -123,6 +127,52 @@
       </div>
 
       <div id="categories-list" class="simple-list"></div>
+    </section>
+
+    <!-- ── Tab: Avisos ── -->
+    <section id="tab-notification" class="tab-section">
+      <div class="tab-header">
+        <div>
+          <h2 class="tab-title">Aviso de Entrada</h2>
+          <p class="tab-sub">Mensagem exibida ao cliente ao abrir o cardápio</p>
+        </div>
+      </div>
+
+      <div class="simple-form-card">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Mensagem do aviso</label>
+          <textarea id="notif-message" class="adm-input adm-textarea" rows="3"
+            placeholder="Ex: 🎯 Combo especial hoje! Dog + bebida por R$ 22. Corre pedir!"></textarea>
+          <p style="font-size:.75rem;color:var(--adm-muted);margin-top:.4rem;">Aparece como popup 1,8 segundos após o cliente abrir o cardápio. Exibido uma vez por sessão.</p>
+        </div>
+        <div class="form-toggle" style="border-top:1px solid var(--adm-border);padding-top:.75rem;">
+          <label class="toggle-label">
+            <span class="toggle-text">Aviso ativo</span>
+            <div class="toggle-switch">
+              <input id="notif-active" type="checkbox" />
+              <span class="toggle-slider"></span>
+            </div>
+          </label>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <button id="btn-save-notif" class="adm-btn adm-btn--primary">Salvar aviso</button>
+        </div>
+      </div>
+
+      <div class="simple-form-card" style="background:var(--adm-bg);">
+        <p style="font-size:.82rem;font-weight:600;color:var(--adm-muted);margin-bottom:.5rem;">Prévia do popup</p>
+        <div style="background:#fff;border:1.5px solid var(--adm-border);border-radius:10px;padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;position:relative;overflow:hidden;">
+          <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#E8622A;"></div>
+          <img src="https://static.saipos.com/saipos-estatico/site-data/57487/logo/019addb7b0d87e934a3ba5784c53eeecWhatsAppImage2026-02-04at20.53.19.jpeg"
+               style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;" />
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#E8622A;margin-bottom:.15rem;">Oferta especial 🔥</div>
+            <div id="notif-preview" style="font-size:.85rem;font-weight:600;color:#18181B;line-height:1.35;">
+              Sua mensagem aparece aqui.
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ── Tab: Entregas ── -->

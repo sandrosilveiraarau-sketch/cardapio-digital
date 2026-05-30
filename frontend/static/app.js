@@ -13,11 +13,82 @@ let searchQuery   = '';
 let catObserver   = null;
 let toastTimer    = null;
 
+const CAT_ICONS = {
+  'dogs': '🌭', 'especiais': '⭐', 'combos': '🎯',
+  'lanches': '🍔', 'bebidas': '🥤', 'sobremesas': '🍦',
+  'promoções': '🏷️', 'promoções': '🏷️',
+};
+
+function catIcon(name) {
+  return CAT_ICONS[(name || '').toLowerCase()] || '🍽️';
+}
+
 /* ─── Boot ───────────────────────── */
 async function init() {
+  updateStoreStatus();
+  setInterval(updateStoreStatus, 60000);
   setupListeners();
   setupScrollBehavior();
   await Promise.all([loadItems(), loadDeliveryZones()]);
+  loadNotification();
+}
+
+/* ─── Store status ───────────────── */
+function updateStoreStatus() {
+  const now   = new Date();
+  const brt   = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const day   = brt.getDay();
+  const h     = brt.getHours();
+  const m     = brt.getMinutes();
+
+  const isLate      = h < 3;
+  const effDay      = isLate ? ((day + 6) % 7) : day;
+  const totalMins   = (isLate ? h + 24 : h) * 60 + m;
+  const openMins    = 17 * 60;
+  const closeMins   = (effDay === 5 || effDay === 6) ? 26 * 60 : 25 * 60;
+  const isOpen      = totalMins >= openMins && totalMins < closeMins;
+
+  const statusEl = document.getElementById('store-status');
+  const dotEl    = document.getElementById('status-dot');
+  const textEl   = document.getElementById('status-text');
+
+  if (isOpen) {
+    statusEl.style.color   = '';
+    dotEl.style.background = '';
+    dotEl.style.animationPlayState = '';
+    textEl.textContent     = 'Aberto agora';
+  } else {
+    statusEl.style.color   = '#F87171';
+    dotEl.style.background = '#F87171';
+    dotEl.style.animationPlayState = 'paused';
+    textEl.textContent     = 'Fechado · Abre às 17h';
+  }
+}
+
+/* ─── Notification popup ─────────── */
+async function loadNotification() {
+  if (sessionStorage.getItem('notif_seen')) return;
+  try {
+    const res = await fetch(`${API}/notification/`);
+    if (!res.ok) return;
+    const n = await res.json();
+    if (!n.active || !n.message.trim()) return;
+    document.getElementById('notif-msg').textContent = n.message;
+    setTimeout(showNotifPopup, 1800);
+  } catch { /* offline */ }
+}
+
+function showNotifPopup() {
+  const el = document.getElementById('notif-popup');
+  el.classList.add('show');
+  el.setAttribute('aria-hidden', 'false');
+}
+
+function hideNotifPopup() {
+  const el = document.getElementById('notif-popup');
+  el.classList.remove('show');
+  el.setAttribute('aria-hidden', 'true');
+  sessionStorage.setItem('notif_seen', '1');
 }
 
 async function loadDeliveryZones() {
@@ -105,7 +176,10 @@ function renderGroupedItems(items) {
   const grouped = groupByCategory(items);
   content.innerHTML = Object.entries(grouped).map(([cat, catItems]) => `
     <section class="cat-section" id="section-${slugify(cat)}" data-category="${esc(cat)}">
-      <h3 class="cat-section-heading">${esc(cat)}</h3>
+      <h3 class="cat-section-heading">
+        <span class="cat-heading-icon">${catIcon(cat)}</span>
+        <span>${esc(cat)}</span>
+      </h3>
       <div class="items-list">
         ${catItems.map((item, i) => renderCard(item, i)).join('')}
       </div>
@@ -419,8 +493,13 @@ function addRipple(btn, e) {
 /* ─── Scroll behavior ────────────── */
 function setupScrollBehavior() {
   const header = document.getElementById('header');
+  let raf = null;
   window.addEventListener('scroll', () => {
-    header.classList.toggle('scrolled', window.scrollY > 10);
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      header.classList.toggle('scrolled', window.scrollY > 10);
+      raf = null;
+    });
   }, { passive: true });
 }
 
@@ -496,6 +575,9 @@ function setupListeners() {
       closeSheet('cart-sheet');
     }
   });
+
+  /* Notification popup close */
+  document.getElementById('notif-close').addEventListener('click', hideNotifPopup);
 }
 
 /* ─── Helpers ────────────────────── */

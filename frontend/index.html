@@ -23,8 +23,9 @@
              alt="Dogão do Bino" class="header-logo-img" />
         <div class="header-brand-text">
           <span class="header-name">Dogão do Bino</span>
-          <span class="header-status">
-            <span class="status-dot"></span>Aberto agora
+          <span class="header-status" id="store-status">
+            <span class="status-dot" id="status-dot"></span>
+            <span id="status-text">Verificando…</span>
           </span>
         </div>
       </div>
@@ -54,7 +55,7 @@
           <div class="store-logo-glow"></div>
         </div>
         <div class="store-banner-info">
-          <p class="store-banner-desc">Pão artesanal · Recheio generoso · Molhos da casa</p>
+          <p class="store-banner-desc">Do jeito que um hot dog tem que ser.</p>
           <div class="store-banner-meta">
             <span class="meta-chip">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -233,6 +234,22 @@
         <p class="cart-footer-hint">Você será redirecionado para o WhatsApp</p>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ═══ NOTIFICATION POPUP ═══ -->
+  <div id="notif-popup" class="notif-popup" aria-live="polite" role="alertdialog" aria-hidden="true">
+    <div class="notif-inner">
+      <div class="notif-accent"></div>
+      <img src="https://static.saipos.com/saipos-estatico/site-data/57487/logo/019addb7b0d87e934a3ba5784c53eeecWhatsAppImage2026-02-04at20.53.19.jpeg"
+           alt="" class="notif-logo" />
+      <div class="notif-content">
+        <div class="notif-label">Oferta especial 🔥</div>
+        <div class="notif-msg" id="notif-msg"></div>
+      </div>
+      <button id="notif-close" class="notif-close" aria-label="Fechar">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
     </div>
   </div>
 

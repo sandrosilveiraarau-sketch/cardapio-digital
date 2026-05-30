@@ -62,3 +62,16 @@ class DeliveryZoneOut(BaseModel):
 class DeliveryZoneCreate(BaseModel):
     neighborhood: str
     fee: float
+
+
+class NotificationOut(BaseModel):
+    message: str
+    active: bool
+
+    class Config:
+        from_attributes = True
+
+
+class NotificationUpdate(BaseModel):
+    message: str
+    active: bool

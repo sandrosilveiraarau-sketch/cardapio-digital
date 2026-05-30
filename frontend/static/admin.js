@@ -42,7 +42,7 @@ function logout() {
 async function initDashboard() {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('dashboard').classList.remove('hidden');
-  await Promise.all([loadCategories(), loadProducts(), loadDeliveryZones()]);
+  await Promise.all([loadCategories(), loadProducts(), loadDeliveryZones(), loadNotification()]);
 }
 
 /* ─── Navigation ────────────────────────── */
@@ -383,6 +383,39 @@ document.getElementById('confirm-ok').addEventListener('click', async () => {
     await loadDeliveryZones();
     showToast('Bairro removido.');
   }
+});
+
+/* ═══════════════════════════════════════════
+   NOTIFICATION
+═══════════════════════════════════════════ */
+async function loadNotification() {
+  const res = await fetch(`${API}/notification/`);
+  if (!res.ok) return;
+  const n = await res.json();
+  document.getElementById('notif-message').value = n.message || '';
+  document.getElementById('notif-active').checked = n.active;
+  updateNotifPreview();
+}
+
+function updateNotifPreview() {
+  const msg = document.getElementById('notif-message').value.trim();
+  document.getElementById('notif-preview').textContent = msg || 'Sua mensagem aparece aqui.';
+}
+
+document.getElementById('notif-message').addEventListener('input', updateNotifPreview);
+
+document.getElementById('btn-save-notif').addEventListener('click', async () => {
+  const message = document.getElementById('notif-message').value.trim();
+  const active  = document.getElementById('notif-active').checked;
+  const btn = document.getElementById('btn-save-notif');
+  btn.disabled = true;
+  const res = await fetch(`${API}/notification/`, {
+    method: 'PUT',
+    headers: { ...auth(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, active }),
+  });
+  btn.disabled = false;
+  if (res.ok) showToast(active ? 'Aviso ativado!' : 'Aviso salvo (inativo).');
 });
 
 /* ═══════════════════════════════════════════

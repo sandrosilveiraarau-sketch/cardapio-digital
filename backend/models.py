@@ -28,3 +28,11 @@ class DeliveryZone(Base):
     id = Column(Integer, primary_key=True, index=True)
     neighborhood = Column(String(100), nullable=False)
     fee = Column(Float, nullable=False, default=0)
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, default=1)
+    message = Column(Text, nullable=False, default="")
+    active = Column(Boolean, default=False)
